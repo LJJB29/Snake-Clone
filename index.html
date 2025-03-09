@@ -3,24 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fullscreen Snake Game</title>
+    <title>Snake Game</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
         body {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
             background-color: #000;
             color: white;
             font-family: Arial, sans-serif;
         }
         canvas {
+            border: 2px solid white;
             background-color: black;
         }
         #restartButton {
@@ -39,35 +36,24 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
     <button id="restartButton" onclick="restartGame()">Restart</button>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const restartButton = document.getElementById('restartButton');
-
-        let box = 20; // Size of each grid block
-        let rows, cols;
+        const box = 20;
         let snake, food, score, d, game;
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth - (window.innerWidth % box);
-            canvas.height = window.innerHeight - (window.innerHeight % box);
-            rows = canvas.height / box;
-            cols = canvas.width / box;
-            restartGame(); // Restart game on resize
-        }
-
         function initGame() {
-            snake = [{x: Math.floor(cols / 2) * box, y: Math.floor(rows / 2) * box}];
+            snake = [{x: 15 * box, y: 15 * box}];
             food = {
-                x: Math.floor(Math.random() * cols) * box,
-                y: Math.floor(Math.random() * rows) * box
+                x: Math.floor(Math.random() * (canvas.width / box)) * box,
+                y: Math.floor(Math.random() * (canvas.height / box)) * box
             };
             score = 0;
             d = null;
-            restartButton.style.display = "none";
+            document.getElementById('restartButton').style.display = "none";
             game = setInterval(draw, 100);
         }
 
@@ -88,13 +74,11 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw snake
             for (let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = i === 0 ? "green" : "white";
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
             }
 
-            // Draw food
             ctx.fillStyle = "red";
             ctx.fillRect(food.x, food.y, box, box);
 
@@ -109,8 +93,8 @@
             if (snakeX === food.x && snakeY === food.y) {
                 score++;
                 food = {
-                    x: Math.floor(Math.random() * cols) * box,
-                    y: Math.floor(Math.random() * rows) * box
+                    x: Math.floor(Math.random() * (canvas.width / box)) * box,
+                    y: Math.floor(Math.random() * (canvas.height / box)) * box
                 };
             } else {
                 snake.pop();
@@ -120,16 +104,15 @@
 
             if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
                 clearInterval(game);
-                restartButton.style.display = "block";
+                document.getElementById('restartButton').style.display = "block";
                 return;
             }
 
             snake.unshift(newHead);
 
-            // Draw score
             ctx.fillStyle = "white";
             ctx.font = "20px Arial";
-            ctx.fillText("Score: " + score, 10, 30);
+            ctx.fillText("Score: " + score, 20, 30);
         }
 
         function collision(head, array) {
@@ -143,12 +126,10 @@
 
         function restartGame() {
             clearInterval(game);
-            resizeCanvas();
             initGame();
         }
 
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas(); // Initialize game on load
+        initGame();
     </script>
 </body>
 </html>
