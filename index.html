@@ -3,18 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Game</title>
+    <title>Snake Game with Skins</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
             background-color: #000;
             color: white;
             font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+        }
+        #skinsMenu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-right: 20px;
+        }
+        .colorButton {
+            width: 50px;
+            height: 50px;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
         }
         canvas {
             border: 2px solid white;
@@ -36,13 +56,25 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="600" height="600"></canvas>
-    <button id="restartButton" onclick="restartGame()">Restart</button>
+    <div class="container">
+        <div id="skinsMenu">
+            <button class="colorButton" style="background-color: green;" onclick="changeSnakeColor('green')"></button>
+            <button class="colorButton" style="background-color: blue;" onclick="changeSnakeColor('blue')"></button>
+            <button class="colorButton" style="background-color: yellow;" onclick="changeSnakeColor('yellow')"></button>
+            <button class="colorButton" style="background-color: purple;" onclick="changeSnakeColor('purple')"></button>
+            <button class="colorButton" style="background-color: cyan;" onclick="changeSnakeColor('cyan')"></button>
+        </div>
+        <div>
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
+            <button id="restartButton" onclick="restartGame()">Restart</button>
+        </div>
+    </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const box = 20;
+        let snakeColor = "green"; // Default snake color
         let snake, food, score, d, game;
 
         function initGame() {
@@ -75,7 +107,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             for (let i = 0; i < snake.length; i++) {
-                ctx.fillStyle = i === 0 ? "green" : "white";
+                ctx.fillStyle = i === 0 ? snakeColor : "white";
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
             }
 
@@ -127,6 +159,10 @@
         function restartGame() {
             clearInterval(game);
             initGame();
+        }
+
+        function changeSnakeColor(color) {
+            snakeColor = color;
         }
 
         initGame();
