@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Game with Skins & Pause</title>
+    <title>Snake Game with Face</title>
     <style>
         * {
             margin: 0;
@@ -90,7 +90,7 @@
                 y: Math.floor(Math.random() * (canvas.height / box)) * box
             };
             score = 0;
-            d = null;
+            d = "RIGHT"; 
             isPaused = false;
             document.getElementById('restartButton').style.display = "none";
             game = setInterval(draw, 100);
@@ -114,6 +114,10 @@
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
             }
 
+            // Draw face on the head
+            drawFace(snake[0].x, snake[0].y, d);
+
+            // Draw food
             ctx.fillStyle = "red";
             ctx.fillRect(food.x, food.y, box, box);
 
@@ -148,6 +152,36 @@
             ctx.fillStyle = "white";
             ctx.font = "20px Arial";
             ctx.fillText("Score: " + score, 20, 30);
+        }
+
+        function drawFace(x, y, direction) {
+            ctx.fillStyle = "black";
+            
+            let eyeOffsetX = 5, eyeOffsetY = 5;
+            let mouthX = x + 7, mouthY = y + 14;
+
+            if (direction === "LEFT") {
+                eyeOffsetX = 2;
+                mouthX = x + 3;
+            } else if (direction === "RIGHT") {
+                eyeOffsetX = 12;
+                mouthX = x + 10;
+            } else if (direction === "UP") {
+                eyeOffsetY = 2;
+                mouthY = y + 5;
+            } else if (direction === "DOWN") {
+                eyeOffsetY = 12;
+                mouthY = y + 16;
+            }
+
+            ctx.beginPath();
+            ctx.arc(x + eyeOffsetX, y + eyeOffsetY, 3, 0, Math.PI * 2);
+            ctx.arc(x + (box - eyeOffsetX), y + eyeOffsetY, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(mouthX, mouthY, 3, 0, Math.PI);
+            ctx.stroke();
         }
 
         function collision(head, array) {
