@@ -3,33 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Game</title>
+    <title>Fullscreen Snake Game</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
             background-color: #000;
             color: white;
             font-family: Arial, sans-serif;
         }
         canvas {
-            border: 1px solid white;
+            background-color: black;
+        }
+        #restartButton {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            background-color: green;
+            color: white;
+            cursor: pointer;
+        }
+        #restartButton:hover {
+            background-color: darkgreen;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <canvas id="gameCanvas"></canvas>
+    <button id="restartButton" onclick="restartGame()">Restart</button>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const box = 20;
-        let snake = [{x: 9 * box, y: 9 * box}];
-        let food = {x: Math.floor(Math.random() * 20) * box, y: Math.floor(Math.random() * 20) * box};
-        let score = 0;
-        let d;
+        const restartButton = document.getElementById('restartButton');
+
+        let box = 20; // Size of each grid block
+        let rows, cols;
+        let snake, food, score, d, game;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth - (window.innerWidth % box);
+            canvas.height = window.innerHeight - (window.innerHeight % box);
+            rows = canvas.height / box;
+            cols = canvas.width / box;
+            restartGame(); // Restart game on resize
+        }
+
+        function initGame() {
+            snake = [{x: Math.floor(cols / 2) * box, y: Math.floor(rows / 2) * box}];
+            food = {
+                x: Math.floor(Math.random() * cols) * box,
+                y: Math.floor(Math.random() * rows) * box
+            };
+            score = 0;
+            d = null;
+            restartButton.style.display = "none";
+            game = setInterval(draw, 100);
+        }
 
         document.addEventListener("keydown", direction);
 
@@ -47,11 +87,14 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw snake
             for (let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = i === 0 ? "green" : "white";
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
             }
 
+            // Draw food
             ctx.fillStyle = "red";
             ctx.fillRect(food.x, food.y, box, box);
 
@@ -65,7 +108,10 @@
 
             if (snakeX === food.x && snakeY === food.y) {
                 score++;
-                food = {x: Math.floor(Math.random() * 20) * box, y: Math.floor(Math.random() * 20) * box};
+                food = {
+                    x: Math.floor(Math.random() * cols) * box,
+                    y: Math.floor(Math.random() * rows) * box
+                };
             } else {
                 snake.pop();
             }
@@ -74,13 +120,16 @@
 
             if (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
                 clearInterval(game);
+                restartButton.style.display = "block";
+                return;
             }
 
             snake.unshift(newHead);
 
+            // Draw score
             ctx.fillStyle = "white";
             ctx.font = "20px Arial";
-            ctx.fillText("Score: " + score, box, box);
+            ctx.fillText("Score: " + score, 10, 30);
         }
 
         function collision(head, array) {
@@ -92,7 +141,14 @@
             return false;
         }
 
-        let game = setInterval(draw, 100);
+        function restartGame() {
+            clearInterval(game);
+            resizeCanvas();
+            initGame();
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas(); // Initialize game on load
     </script>
 </body>
 </html>
