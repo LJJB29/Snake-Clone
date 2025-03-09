@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Game with Skins</title>
+    <title>Snake Game with Skins & Pause</title>
     <style>
         * {
             margin: 0;
@@ -40,8 +40,7 @@
             border: 2px solid white;
             background-color: black;
         }
-        #restartButton {
-            display: none;
+        .button {
             margin-top: 10px;
             padding: 10px 20px;
             font-size: 18px;
@@ -50,8 +49,14 @@
             color: white;
             cursor: pointer;
         }
-        #restartButton:hover {
+        .button:hover {
             background-color: darkgreen;
+        }
+        #pauseButton {
+            background-color: orange;
+        }
+        #pauseButton:hover {
+            background-color: darkorange;
         }
     </style>
 </head>
@@ -66,7 +71,8 @@
         </div>
         <div>
             <canvas id="gameCanvas" width="600" height="600"></canvas>
-            <button id="restartButton" onclick="restartGame()">Restart</button>
+            <button id="restartButton" class="button" onclick="restartGame()">Restart</button>
+            <button id="pauseButton" class="button" onclick="togglePause()">Pause</button>
         </div>
     </div>
 
@@ -74,8 +80,8 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const box = 20;
-        let snakeColor = "green"; // Default snake color
-        let snake, food, score, d, game;
+        let snakeColor = "green"; 
+        let snake, food, score, d, game, isPaused = false;
 
         function initGame() {
             snake = [{x: 15 * box, y: 15 * box}];
@@ -85,29 +91,26 @@
             };
             score = 0;
             d = null;
+            isPaused = false;
             document.getElementById('restartButton').style.display = "none";
             game = setInterval(draw, 100);
         }
 
-        document.addEventListener("keydown", direction);
-
-        function direction(event) {
-            if (event.keyCode == 37 && d !== "RIGHT") {
-                d = "LEFT";
-            } else if (event.keyCode == 38 && d !== "DOWN") {
-                d = "UP";
-            } else if (event.keyCode == 39 && d !== "LEFT") {
-                d = "RIGHT";
-            } else if (event.keyCode == 40 && d !== "UP") {
-                d = "DOWN";
-            }
-        }
+        document.addEventListener("keydown", function(event) {
+            if (event.keyCode == 37 && d !== "RIGHT") d = "LEFT";
+            if (event.keyCode == 38 && d !== "DOWN") d = "UP";
+            if (event.keyCode == 39 && d !== "LEFT") d = "RIGHT";
+            if (event.keyCode == 40 && d !== "UP") d = "DOWN";
+            if (event.keyCode == 80) togglePause(); // Press 'P' to pause
+        });
 
         function draw() {
+            if (isPaused) return;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             for (let i = 0; i < snake.length; i++) {
-                ctx.fillStyle = snakeColor; // Now the whole snake is the same color
+                ctx.fillStyle = snakeColor;
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
             }
 
@@ -149,9 +152,7 @@
 
         function collision(head, array) {
             for (let i = 0; i < array.length; i++) {
-                if (head.x === array[i].x && head.y === array[i].y) {
-                    return true;
-                }
+                if (head.x === array[i].x && head.y === array[i].y) return true;
             }
             return false;
         }
@@ -163,6 +164,11 @@
 
         function changeSnakeColor(color) {
             snakeColor = color;
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            document.getElementById('pauseButton').innerText = isPaused ? "Resume" : "Pause";
         }
 
         initGame();
